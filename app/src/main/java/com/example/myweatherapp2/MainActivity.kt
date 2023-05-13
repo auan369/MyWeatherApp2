@@ -41,12 +41,16 @@ const val BASE_URL = "https://api.openweathermap.org/"
 
 
 
-
 class MainActivity : ComponentActivity(), LocationListener  {
     //private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var locationManager: LocationManager
     private lateinit var tvGpsLocation: TextView
     private val locationPermissionCode = 2
+
+    companion object{
+        var lat = "1.3521"
+        var lon = "103.8198"
+    }
 
 
 
@@ -60,13 +64,13 @@ class MainActivity : ComponentActivity(), LocationListener  {
         setContentView(R.layout.activity_main)
 
         //fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
-        tvLatitude=findViewById(R.id.tv_latitude)
-        tvLongitude=findViewById(R.id.tv_longitude)
+
 
         title = "KotlinApp"
         val button: Button = findViewById(R.id.getLocation)
         button.setOnClickListener {
             getLocation()
+
         }
         //getCurrentLocation()
         //My Interface code
@@ -84,6 +88,10 @@ class MainActivity : ComponentActivity(), LocationListener  {
     override fun onLocationChanged(location: Location) {
         tvGpsLocation = findViewById(R.id.textView)
         tvGpsLocation.text = "Latitude: " + location.latitude + " , Longitude: " + location.longitude
+        lat = ""+ location.latitude
+        lon = ""+ location.longitude
+        getMyData()
+
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -210,7 +218,9 @@ class MainActivity : ComponentActivity(), LocationListener  {
             .baseUrl(BASE_URL)
             .build()
             .create(ApiInterface::class.java)
-        val retrofitData = retrofitBuilder.getData(latitude="1.3521", longitude ="103.8198",
+        //val lat = "1.3521"
+        //val lon = "103.8198"
+        val retrofitData = retrofitBuilder.getData(latitude=lat, longitude =lon,
             api_key = "7daec42f5f875dd64c266e4a47f53151", units = "metric")
         retrofitData.enqueue(object : Callback<MyData?> {
             override fun onResponse(call: Call<MyData?>, response: Response<MyData?>) {
@@ -230,8 +240,8 @@ class MainActivity : ComponentActivity(), LocationListener  {
                 //showTextView.text = currentWeather
                 findViewById<TextView>(R.id.CurrentWeatherId).text = currentWeather
                 findViewById<TextView>(R.id.CurrentTempId).text = currentTemp.append(" °C")
-                findViewById<TextView>(R.id.CurrentLonId).text = currentLon.append("° N")
-                findViewById<TextView>(R.id.CurrentLatId).text = currentLat.append("° E")
+                findViewById<TextView>(R.id.CurrentLonId).text = currentLon.append("° E")
+                findViewById<TextView>(R.id.CurrentLatId).text = currentLat.append("° N")
             }
 
             override fun onFailure(call: Call<MyData?>, t: Throwable) {
