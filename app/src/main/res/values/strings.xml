@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MyWeatherApp2</string>
+    <string name="activity_main_text">Hello World:</string>
+</resources>
