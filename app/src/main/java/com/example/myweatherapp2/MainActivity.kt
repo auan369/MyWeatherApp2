@@ -43,6 +43,13 @@ class MainActivity : ComponentActivity(), LocationListener  {
         var lat = "1.3521"
         var lon = "103.8198"
         var picID = "01n"
+        var currentTemp = "32.62"
+        var currentWeather = "Clouds"
+        //var currentLat = "1.3521"
+        //var currentLon = "103.82"
+        var currentCtry = "SG"
+        var currentWeatherDesc = "Few clouds"
+
     }
 
 
@@ -66,15 +73,61 @@ class MainActivity : ComponentActivity(), LocationListener  {
         val button: Button = findViewById(R.id.getLocation)
         button.setOnClickListener {
             getLocation()
+            saveData()
 
         }
         //getCurrentLocation()
         //My Interface code
+        loadData()
         getLocation()
         getMyData()
+        saveData()
     }
 
 
+
+    private fun saveData(){
+        val sharedPreferences = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.apply{
+            putString("LAT_KEY", lat)
+            putString("LON_KEY", lon)
+
+            putString("PICID_KEY", picID)
+
+            putString("TEMP_KEY", currentTemp)
+            putString("WEATHER_KEY", currentWeather)
+            putString("CTRY_KEY", currentCtry)
+            putString("WEATHERDESC_KEY", currentWeatherDesc)
+        }.apply()
+        Toast.makeText(this,"Data saved", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun loadData(){
+        val sharedPreferences = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+        val latsavedString = sharedPreferences.getString("LAT_KEY",null)
+        val lonsavedString = sharedPreferences.getString("LON_KEY",null)
+        val picidsavedString = sharedPreferences.getString("PICID_KEY",null)
+        val tempsavedString = sharedPreferences.getString("TEMP_KEY",null)
+        val weathersavedString = sharedPreferences.getString("WEATHER_KEY",null)
+        val ctrysavedString = sharedPreferences.getString("CTRY_KEY",null)
+        val weatherdescsavedString = sharedPreferences.getString("WEATHERDESC_KEY",null)
+
+        findViewById<TextView>(R.id.CurrentWeatherId).text = "Weather: " + weathersavedString
+        findViewById<TextView>(R.id.CurrentWeatherDiscId).text = weatherdescsavedString.toString().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.ROOT
+            ) else it.toString()
+        }
+        findViewById<TextView>(R.id.CurrentTempId).text = "Temp: " + tempsavedString + " °C"
+        findViewById<TextView>(R.id.CurrentLonId).text = "Longitude: " + lonsavedString +"° E"
+        findViewById<TextView>(R.id.CurrentLatId).text = "Latitude: " + latsavedString +"° N"
+        findViewById<TextView>(R.id.CurrentCtryId).text = ctrysavedString
+        imageView = findViewById(R.id.imageView)
+        val imageName = "pic_$picidsavedString"
+        val resID = resources.getIdentifier(imageName, "drawable", packageName)
+        imageView.setImageResource(resID)
+    }
     private fun getLocation() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
@@ -223,12 +276,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
         retrofitData.enqueue(object : Callback<MyData?> {
             override fun onResponse(call: Call<MyData?>, response: Response<MyData?>) {
                 val responseBody = response.body()!!
-                val currentTemp = StringBuilder()
-                val currentWeather = StringBuilder()
-                val currentLat = StringBuilder()
-                val currentLon = StringBuilder()
-                val currentCtry = StringBuilder()
-                val currentWeatherDisc = StringBuilder()
+
 
                 picID = responseBody.weather[0].icon
                 imageView = findViewById(R.id.imageView)
@@ -236,26 +284,26 @@ class MainActivity : ComponentActivity(), LocationListener  {
                 val resID = resources.getIdentifier(imageName, "drawable", packageName)
                 imageView.setImageResource(resID)
 
-                currentTemp.append(responseBody.main.temp)
-                currentWeather.append(responseBody.weather[0].main)
-                currentWeatherDisc.append(responseBody.weather[0].description)
-                currentLon.append(responseBody.coord.lon)
-                currentLat.append(responseBody.coord.lat)
-                currentCtry.append(responseBody.sys.country)
+                currentTemp = responseBody.main.temp.toString()
+                currentWeather = responseBody.weather[0].main.toString()
+                currentWeatherDesc = responseBody.weather[0].description.toString()
+                lon = responseBody.coord.lon.toString()
+                lat = responseBody.coord.lat.toString()
+                currentCtry = responseBody.sys.country.toString()
 
 
 
                 //val showTextView = findViewById<TextView>(R.id.txtId)
                 //showTextView.text = currentWeather
                 findViewById<TextView>(R.id.CurrentWeatherId).text = "Weather: " + currentWeather
-                findViewById<TextView>(R.id.CurrentWeatherDiscId).text = currentWeatherDisc.toString().replaceFirstChar {
+                findViewById<TextView>(R.id.CurrentWeatherDiscId).text = currentWeatherDesc.toString().replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(
                         Locale.ROOT
                     ) else it.toString()
                 }
-                findViewById<TextView>(R.id.CurrentTempId).text = "Temp: " + currentTemp.append(" °C")
-                findViewById<TextView>(R.id.CurrentLonId).text = "Longitude: " + currentLon.append("° E")
-                findViewById<TextView>(R.id.CurrentLatId).text = "Latitude: " + currentLat.append("° N")
+                findViewById<TextView>(R.id.CurrentTempId).text = "Temp: " + currentTemp + " °C"
+                findViewById<TextView>(R.id.CurrentLonId).text = "Longitude: " + lon +"° E"
+                findViewById<TextView>(R.id.CurrentLatId).text = "Latitude: " + lat +"° N"
                 findViewById<TextView>(R.id.CurrentCtryId).text = currentCtry
             }
 
