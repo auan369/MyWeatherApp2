@@ -6,5 +6,5 @@
 
 #### Click the image below for a screengrab of the app in action!
 <!-- blank line -->
-[![Watch the video](https://img.youtube.com/vi/_EG_4RqS5PE/maxresdefault.jpg)](https://youtu.be/_EG_4RqS5PE)
+[![Watch the video](https://img.youtube.com/vi/_EG_4RqS5PE/hqdefault.jpg)](https://youtu.be/_EG_4RqS5PE)
 
