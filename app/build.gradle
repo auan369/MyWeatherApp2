@@ -64,6 +64,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     //location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    //OkHttp
+    implementation('com.squareup.okhttp3:okhttp') { version { strictly '3.12.12'  } }
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

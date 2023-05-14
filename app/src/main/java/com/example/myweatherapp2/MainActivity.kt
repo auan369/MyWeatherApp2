@@ -1,11 +1,9 @@
 package com.example.myweatherapp2
 
-//import androidx.activity.compose.setContent
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.material3.MaterialTheme
-//import androidx.compose.material3.Surface
+
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -29,7 +27,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
 import java.time.LocalDateTime
 
-//@RequiresApi(Build.VERSION_CODES.O)
 
 
 const val BASE_URL = "https://api.openweathermap.org/"
@@ -53,6 +50,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
         //var currentLat = "1.3521"
         //var currentLon = "103.82"
         var currentCtry = "SG"
+        var currentLoc = "Singapore"
         var currentWeatherDesc = "Few clouds"
         var timeStamp = "2023-05-14 09:40:41.966"
 
@@ -60,8 +58,6 @@ class MainActivity : ComponentActivity(), LocationListener  {
 
 
 
-    //private lateinit var tvLatitude: TextView
-    //private lateinit var tvLongitude: TextView
 
 
     private lateinit var imageView : ImageView
@@ -70,11 +66,14 @@ class MainActivity : ComponentActivity(), LocationListener  {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val buttonClick = findViewById<Button>(R.id.newPage)
+        buttonClick.setOnClickListener {
+            val intent = Intent(this, NewActivity::class.java)
+            startActivity(intent)
+        }
 
-        //val a = getResources().getIdentifier("ic_launcher_background")
 
 
-        //fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
 
 
         title = "KotlinApp"
@@ -84,7 +83,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
             saveData()
 
         }
-        //getCurrentLocation()
+
         //My Interface code
         loadData()
         getLocation()
@@ -115,6 +114,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
             putString("CTRY_KEY", currentCtry)
             putString("WEATHERDESC_KEY", currentWeatherDesc)
             putString("TIME_KEY", timeStamp)
+            putString("LOC_KEY", currentLoc)
         }.apply()
         Toast.makeText(this,"Data saved", Toast.LENGTH_SHORT).show()
     }
@@ -129,6 +129,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
         val ctrysavedString = sharedPreferences.getString("CTRY_KEY",null)
         val weatherdescsavedString = sharedPreferences.getString("WEATHERDESC_KEY",null)
         val timesavedString = sharedPreferences.getString("TIME_KEY",null)
+        val locsavedString = sharedPreferences.getString("LOC_KEY",null)
         findViewById<TextView>(R.id.TimeId).text = "Retrieved:\t" + timesavedString
         findViewById<TextView>(R.id.CurrentWeatherId).text = "Weather: " + weathersavedString
         findViewById<TextView>(R.id.CurrentWeatherDiscId).text = weatherdescsavedString.toString().replaceFirstChar {
@@ -139,7 +140,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
         findViewById<TextView>(R.id.CurrentTempId).text = "Temp: " + tempsavedString + " °C"
         findViewById<TextView>(R.id.CurrentLonId).text = "Longitude: " + lonsavedString +"° E"
         findViewById<TextView>(R.id.CurrentLatId).text = "Latitude: " + latsavedString +"° N"
-        findViewById<TextView>(R.id.CurrentCtryId).text = ctrysavedString
+        findViewById<TextView>(R.id.CurrentCtryId).text = ctrysavedString + ": "+ locsavedString
         imageView = findViewById(R.id.imageView)
         val imageName = "pic_$picidsavedString"
         val resID = resources.getIdentifier(imageName, "drawable", packageName)
@@ -177,109 +178,6 @@ class MainActivity : ComponentActivity(), LocationListener  {
 
 
 
-    /*
-    private fun getCurrentLocation(){
-        if(checkPermissions()){
-            if(isLocationEnabled()){
-                //final lat and lon
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    requestPermission()
-                    return
-                }
-                fusedLocationProviderClient.lastLocation.addOnCompleteListener(this){ task->
-                    val location: Location? = task.result
-                    if(location == null){
-                        Toast.makeText(this,"Null received", Toast.LENGTH_SHORT).show()
-                    }
-                    else{
-                        Toast.makeText(this,"Get Success", Toast.LENGTH_SHORT).show()
-                        tvLatitude.text = "" + location.latitude
-                        tvLongitude.text = "" + location.longitude
-
-                    }
-                }
-            }
-            else{
-                //setting open here
-                Toast.makeText(this,"Turn on location", Toast.LENGTH_SHORT).show()
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
-            }
-
-        }
-        else{
-            //request permission here
-            requestPermission()
-        }
-
-    }
-
-    private fun isLocationEnabled(): Boolean {
-        val locationManager:LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)||locationManager.isProviderEnabled(
-            LocationManager.NETWORK_PROVIDER
-
-        )
-
-    }
-
-    private fun requestPermission() {
-        ActivityCompat.requestPermissions(
-            this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION),
-            PERMISSION_REQUEST_ACCESS_LOCATION
-        )
-    }
-
-    companion object{
-        private const val PERMISSION_REQUEST_ACCESS_LOCATION=100
-    }
-    private fun checkPermissions(): Boolean{
-        if(ActivityCompat.checkSelfPermission(this,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION)
-            ==PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
-            return true
-        }
-        return false
-    }
-
-    //@Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode== PERMISSION_REQUEST_ACCESS_LOCATION){
-            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(applicationContext, "Granted",Toast.LENGTH_SHORT).show()
-                getCurrentLocation()
-            }
-            else{
-                Toast.makeText(applicationContext, "Denied",Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    }
-    */
-
-
-    //private fun fetchCurrent
     private fun getMyData(){
         val retrofitBuilder = Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
@@ -307,6 +205,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
                 lon = responseBody.coord.lon.toString()
                 lat = responseBody.coord.lat.toString()
                 currentCtry = responseBody.sys.country.toString()
+                currentLoc = responseBody.name.toString()
 
 
 
@@ -321,7 +220,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
                 findViewById<TextView>(R.id.CurrentTempId).text = "Temp: " + currentTemp + " °C"
                 findViewById<TextView>(R.id.CurrentLonId).text = "Longitude: " + lon +"° E"
                 findViewById<TextView>(R.id.CurrentLatId).text = "Latitude: " + lat +"° N"
-                findViewById<TextView>(R.id.CurrentCtryId).text = currentCtry
+                findViewById<TextView>(R.id.CurrentCtryId).text = currentCtry + ": " + currentLoc
                 try{timenow()}
                 catch (e: NoClassDefFoundError){
                     println("Something went wrong.")

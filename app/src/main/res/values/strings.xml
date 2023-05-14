@@ -2,7 +2,7 @@
     <string name="app_name">MyWeatherApp2</string>
     <string name="activity_main_text">Hello World:</string>
     <string name="my_weather_app">My Weather App</string>
-    <string name="current_gps_location">Current Weather at GPS Location</string>
+    <string name="current_gps_location">Weather at GPS Location</string>
     <string name="get_location">Update Location</string>
     <string name="current_weather">Current Weather</string>
     <string name="current_temp">Current Temp</string>
@@ -11,4 +11,7 @@
     <string name="current_country">Current Country</string>
     <string name="current_weather_desc">Current Weather Description</string>
     <string name="time_text" />
+    <string name="weather_icon">Weather icon</string>
+    <string name="back_button_text">Back to Main</string>
+    <string name="weather_in_major_cities">Weather in Major Cities</string>
 </resources>
