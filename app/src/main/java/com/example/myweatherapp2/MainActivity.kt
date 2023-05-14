@@ -1,39 +1,31 @@
 package com.example.myweatherapp2
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
-import android.location.LocationListener
-import android.os.Bundle
-import android.provider.Settings
-import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.ComponentActivity
 //import androidx.activity.compose.setContent
 //import androidx.compose.foundation.layout.fillMaxSize
 //import androidx.compose.material3.MaterialTheme
 //import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Bundle
+import android.util.Log
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.myweatherapp2.ui.theme.MyWeatherApp2Theme
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.Locale
+
 
 const val BASE_URL = "https://api.openweathermap.org/"
 //@Suppress("DEPRECATION")
@@ -50,18 +42,22 @@ class MainActivity : ComponentActivity(), LocationListener  {
     companion object{
         var lat = "1.3521"
         var lon = "103.8198"
+        var picID = "01n"
     }
 
 
 
-    private lateinit var tvLatitude: TextView
-    private lateinit var tvLongitude: TextView
+    //private lateinit var tvLatitude: TextView
+    //private lateinit var tvLongitude: TextView
 
 
-
+    private lateinit var imageView : ImageView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //val a = getResources().getIdentifier("ic_launcher_background")
+
 
         //fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
 
@@ -74,6 +70,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
         }
         //getCurrentLocation()
         //My Interface code
+        getLocation()
         getMyData()
     }
 
@@ -86,10 +83,11 @@ class MainActivity : ComponentActivity(), LocationListener  {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, this)
     }
     override fun onLocationChanged(location: Location) {
-        tvGpsLocation = findViewById(R.id.textView)
-        tvGpsLocation.text = "Latitude: " + location.latitude + " , Longitude: " + location.longitude
+        //tvGpsLocation = findViewById(R.id.textView)
+        //tvGpsLocation.text = "Latitude: " + location.latitude + " , Longitude: " + location.longitude
         lat = ""+ location.latitude
         lon = ""+ location.longitude
+
         getMyData()
 
     }
@@ -229,19 +227,36 @@ class MainActivity : ComponentActivity(), LocationListener  {
                 val currentWeather = StringBuilder()
                 val currentLat = StringBuilder()
                 val currentLon = StringBuilder()
+                val currentCtry = StringBuilder()
+                val currentWeatherDisc = StringBuilder()
+
+                picID = responseBody.weather[0].icon
+                imageView = findViewById(R.id.imageView)
+                val imageName = "pic_$picID"
+                val resID = resources.getIdentifier(imageName, "drawable", packageName)
+                imageView.setImageResource(resID)
+
                 currentTemp.append(responseBody.main.temp)
                 currentWeather.append(responseBody.weather[0].main)
+                currentWeatherDisc.append(responseBody.weather[0].description)
                 currentLon.append(responseBody.coord.lon)
                 currentLat.append(responseBody.coord.lat)
+                currentCtry.append(responseBody.sys.country)
 
 
 
                 //val showTextView = findViewById<TextView>(R.id.txtId)
                 //showTextView.text = currentWeather
-                findViewById<TextView>(R.id.CurrentWeatherId).text = currentWeather
-                findViewById<TextView>(R.id.CurrentTempId).text = currentTemp.append(" °C")
-                findViewById<TextView>(R.id.CurrentLonId).text = currentLon.append("° E")
-                findViewById<TextView>(R.id.CurrentLatId).text = currentLat.append("° N")
+                findViewById<TextView>(R.id.CurrentWeatherId).text = "Weather: " + currentWeather
+                findViewById<TextView>(R.id.CurrentWeatherDiscId).text = currentWeatherDisc.toString().replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.ROOT
+                    ) else it.toString()
+                }
+                findViewById<TextView>(R.id.CurrentTempId).text = "Temp: " + currentTemp.append(" °C")
+                findViewById<TextView>(R.id.CurrentLonId).text = "Longitude: " + currentLon.append("° E")
+                findViewById<TextView>(R.id.CurrentLatId).text = "Latitude: " + currentLat.append("° N")
+                findViewById<TextView>(R.id.CurrentCtryId).text = currentCtry
             }
 
             override fun onFailure(call: Call<MyData?>, t: Throwable) {
@@ -249,4 +264,10 @@ class MainActivity : ComponentActivity(), LocationListener  {
             }
         })
     }
+
+    override fun onProviderEnabled(provider: String) {}
+
+    override fun onProviderDisabled(provider: String) {}
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
 }
