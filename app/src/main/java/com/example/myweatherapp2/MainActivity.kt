@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -17,6 +18,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import retrofit2.Call
@@ -25,6 +27,9 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
+import java.time.LocalDateTime
+
+//@RequiresApi(Build.VERSION_CODES.O)
 
 
 const val BASE_URL = "https://api.openweathermap.org/"
@@ -49,6 +54,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
         //var currentLon = "103.82"
         var currentCtry = "SG"
         var currentWeatherDesc = "Few clouds"
+        var timeStamp = "2023-05-14 09:40:41.966"
 
     }
 
@@ -59,9 +65,11 @@ class MainActivity : ComponentActivity(), LocationListener  {
 
 
     private lateinit var imageView : ImageView
+    //@RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
         //val a = getResources().getIdentifier("ic_launcher_background")
 
@@ -84,6 +92,13 @@ class MainActivity : ComponentActivity(), LocationListener  {
         saveData()
     }
 
+    fun timenow() {
+        val current = LocalDateTime.now()
+        //println("Current Date and Time is: $current")
+        timeStamp = current.toLocalDate().toString() + "\t" + current.toLocalTime().toString()
+        findViewById<TextView>(R.id.TimeId).text = "Retrieved:\t" + timeStamp
+    }
+
 
 
     private fun saveData(){
@@ -99,6 +114,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
             putString("WEATHER_KEY", currentWeather)
             putString("CTRY_KEY", currentCtry)
             putString("WEATHERDESC_KEY", currentWeatherDesc)
+            putString("TIME_KEY", timeStamp)
         }.apply()
         Toast.makeText(this,"Data saved", Toast.LENGTH_SHORT).show()
     }
@@ -112,7 +128,8 @@ class MainActivity : ComponentActivity(), LocationListener  {
         val weathersavedString = sharedPreferences.getString("WEATHER_KEY",null)
         val ctrysavedString = sharedPreferences.getString("CTRY_KEY",null)
         val weatherdescsavedString = sharedPreferences.getString("WEATHERDESC_KEY",null)
-
+        val timesavedString = sharedPreferences.getString("TIME_KEY",null)
+        findViewById<TextView>(R.id.TimeId).text = "Retrieved:\t" + timesavedString
         findViewById<TextView>(R.id.CurrentWeatherId).text = "Weather: " + weathersavedString
         findViewById<TextView>(R.id.CurrentWeatherDiscId).text = weatherdescsavedString.toString().replaceFirstChar {
             if (it.isLowerCase()) it.titlecase(
@@ -305,6 +322,10 @@ class MainActivity : ComponentActivity(), LocationListener  {
                 findViewById<TextView>(R.id.CurrentLonId).text = "Longitude: " + lon +"° E"
                 findViewById<TextView>(R.id.CurrentLatId).text = "Latitude: " + lat +"° N"
                 findViewById<TextView>(R.id.CurrentCtryId).text = currentCtry
+                try{timenow()}
+                catch (e: NoClassDefFoundError){
+                    println("Something went wrong.")
+                }
             }
 
             override fun onFailure(call: Call<MyData?>, t: Throwable) {
