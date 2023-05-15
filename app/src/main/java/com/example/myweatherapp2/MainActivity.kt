@@ -148,22 +148,28 @@ class MainActivity : ComponentActivity(), LocationListener  {
     }
     private fun getLocation() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            //Toast.makeText(this, "Requesting permission to access fine location", Toast.LENGTH_SHORT).show()
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionCode)
         }
+
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, this)
+        //Toast.makeText(this, locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.latitude.toString(), Toast.LENGTH_SHORT).show()
+        lat = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.latitude.toString()
+        lon = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.longitude.toString()
     }
     override fun onLocationChanged(location: Location) {
         //tvGpsLocation = findViewById(R.id.textView)
         //tvGpsLocation.text = "Latitude: " + location.latitude + " , Longitude: " + location.longitude
         lat = ""+ location.latitude
         lon = ""+ location.longitude
-
+        //Toast.makeText(this, lon +"\t"+ lat , Toast.LENGTH_SHORT).show()
         getMyData()
 
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        //Toast.makeText(this, "in request permission fun", Toast.LENGTH_SHORT).show()
         if (requestCode == locationPermissionCode) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
@@ -172,6 +178,7 @@ class MainActivity : ComponentActivity(), LocationListener  {
                 Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
             }
         }
+        else{Toast.makeText(this, "Wrong Permission Code", Toast.LENGTH_SHORT).show()}
     }
 
 
